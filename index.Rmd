@@ -17,6 +17,8 @@ library(DT)
 library(plotly)
 library(sf)
 library(leaflet)
+library(raster)
+library(rgdal)
 ```
 
 ```{r carga-datos, message=FALSE, warning=FALSE}
@@ -96,6 +98,27 @@ Grafico_pastel
 <br>
 
 # Mapa de distribucion 
+```{r world-clim, message=FALSE}
+# Descarga de capa World Clim
+alt <- getData(
+  "worldclim",
+  var = "alt",
+  res = .5,
+  lon = -84,
+  lat = 10
+)
+
+# Capa de altitud recortada para los límites aproximados de Costa Rica
+altitud <- crop(alt, extent(-86, -82.3, 8, 11.3))
+
+# Paleta de colores
+pal <- colorNumeric(
+  c("#643000", "#FFFF00", "#0000FF"), 
+  values(altitud), 
+  na.color = "transparent"
+)
+```
+
 ```{r filter}
 # Asignar variables
 Ateles_geoffroyi <- primates %>%
@@ -181,9 +204,15 @@ primates %>%
     ),
     group = "Saimiri_oerstedii"
   ) %>%
+  addRasterImage(
+    altitud,
+    colors = pal,
+    opacity, 0.9,
+    group = "Altitud"
+  ) %>%
   addLayersControl(
     baseGroups = c("OpenStreetMap", "Imágenes de ESRI"),
-    overlayGroups = c("Ateles geoffroyi", "Alouatta palliata", "Cebus capucinus", "Saimiri oerstedii")
+    overlayGroups = c("Ateles geoffroyi", "Alouatta palliata", "Cebus capucinus", "Saimiri oerstedii", "Altitud")
   ) %>%
   addMiniMap(
     tiles = providers$Stamen.OpenStreetMap.Mapnik,
