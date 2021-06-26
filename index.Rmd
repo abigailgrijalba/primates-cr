@@ -19,6 +19,7 @@ library(sf)
 library(leaflet)
 library(raster)
 library(rgdal)
+library(ggplot2)
 ```
 
 ```{r carga-datos, message=FALSE, warning=FALSE}
