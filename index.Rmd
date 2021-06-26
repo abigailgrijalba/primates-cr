@@ -19,7 +19,6 @@ library(sf)
 library(leaflet)
 library(raster)
 library(rgdal)
-library(ggplot2)
 ```
 
 ```{r carga-datos, message=FALSE, warning=FALSE}
@@ -62,7 +61,7 @@ En Costa Rica habitan cuatro especies de primates(congo, cariblanca, titi y ara�
 # Tabla de registros de presencia
 primates %>%
   st_drop_geometry() %>%
-  select(family, species, stateProvince, canton, eventDate) %>%
+  dplyr::select(family, species, stateProvince, canton, eventDate) %>%
   datatable(colnames = c(
     "Familia",
     "Especie",
@@ -80,9 +79,10 @@ primates %>%
 # Grafico de registros
 
 ```{r grafico-pastel, warning=FALSE, message=FALSE}
-# Grafico de pastel
+# Asignación de paleta de color
 colors <- c('#7F00B2','#007000','#fc007f')
 
+# Gráfico tipo pastel
 Grafico_pastel <-  plot_ly(primates, labels =  ~species, type = 'pie',
                    textposition = 'inside',
                    insidetextfont = list(color = '#FFFFFF'),
@@ -114,7 +114,7 @@ altitud <- crop(alt, extent(-86, -82.3, 8, 11.3))
 
 # Paleta de colores
 pal <- colorNumeric(
-  c("#643000", "#FFFF00", "#0000FF"), 
+  c("#006400", "#FFFF00", "#3F2817"), 
   values(altitud), 
   na.color = "transparent"
 )
@@ -135,10 +135,10 @@ Saimiri_oerstedii <- primates %>%
   filter(species == "Saimiri oerstedii")
 ```
 
-```{r mapa-distribucion}
+```{r mapa-distribucion, warning=FALSE, message=FALSE}
 # Mapa de registros de presencia
 primates %>%
-  select(stateProvince,
+  dplyr::select(stateProvince,
          canton,
          eventDate,
          species) %>%
@@ -203,17 +203,17 @@ primates %>%
       primates$species,
       sep = '<br/>'
     ),
-    group = "Saimiri_oerstedii"
+    group = "Saimiri oerstedii"
   ) %>%
   addRasterImage(
     altitud,
     colors = pal,
-    opacity, 0.9,
+    opacity = 0.8,
     group = "Altitud"
   ) %>%
   addLayersControl(
     baseGroups = c("OpenStreetMap", "Imágenes de ESRI"),
-    overlayGroups = c("Ateles geoffroyi", "Alouatta palliata", "Cebus capucinus", "Saimiri oerstedii", "Altitud")
+    overlayGroups = c("Altitud", "Ateles geoffroyi", "Alouatta palliata", "Cebus capucinus", "Saimiri oerstedii")
   ) %>%
   addMiniMap(
     tiles = providers$Stamen.OpenStreetMap.Mapnik,
